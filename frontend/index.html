@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXO Dashboard</title>
+  <link rel="stylesheet" href="style/base.css">
+  <link rel="stylesheet" href="style/sidebar.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-exo">exo</span>
+      <span class="logo-sub">dashboard</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item active" data-tab="overview">Overview</a>
+      <a class="nav-item" data-tab="users">Users</a>
+      <a class="nav-item" data-tab="timeline">Timeline</a>
+      <a class="nav-item" data-tab="keys">API Keys</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="refresh-row">Auto refresh <span id="countdown">10</span>s</div>
+      <a href="/admin/export" class="export-btn">Export CSV</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <h1 id="page-title">Overview</h1>
+      <div class="status-row">
+        <span class="dot" id="dot"></span>
+        <span id="status-txt">Connecting...</span>
+        <span id="updated-at"></span>
+      </div>
+    </header>
+
+    <!-- Overview -->
+    <section id="tab-overview" class="tab active">
+      <div class="metrics" id="metrics"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Requests by user</div>
+          <canvas id="chart-users" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">Tokens by user</div>
+          <canvas id="chart-tokens" height="220"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Activity — last 7 days</div>
+        <canvas id="chart-daily" height="100"></canvas>
+      </div>
+    </section>
+
+    <!-- Users -->
+    <section id="tab-users" class="tab">
+      <div class="card">
+        <div class="card-title">All users</div>
+        <table class="tbl" id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Key</th><th>Role</th>
+              <th>Requests</th><th>Tokens in</th><th>Tokens out</th><th>Last seen</th>
+            </tr>
+          </thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent activity</div>
+        <div id="history-list"></div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section id="tab-timeline" class="tab">
+      <div class="card">
+        <div class="card-title-row">
+          <span class="card-title">Daily requests</span>
+          <select id="timeline-range">
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+        <canvas id="chart-timeline" height="120"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Hourly heatmap — today</div>
+        <div id="heatmap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Usage by user over time</div>
+        <canvas id="chart-stacked" height="120"></canvas>
+      </div>
+    </section>
+
+    <!-- API Keys -->
+    <section id="tab-keys" class="tab">
+      <div class="card">
+        <div class="card-title">Add user</div>
+        <div class="add-row">
+          <input id="new-key" placeholder="API key (e.g. john123)" />
+          <input id="new-name" placeholder="Display name (e.g. John)" />
+          <button id="add-btn">Add</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Active keys</div>
+        <div id="keys-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">How to use</div>
+        <pre class="code">api_base = "http://YOUR_MAC_IP:8000/v1"
+api_key  = "your_key_here"
+model    = "mlx-community/Kimi-K2.5"</pre>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
