@@ -40,6 +40,11 @@
 
     <!-- Overview -->
     <section id="tab-overview" class="tab active">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <label style="color:#555;font-size:12px;text-transform:uppercase;letter-spacing:.8px">Date</label>
+        <input type="date" id="overview-date" style="background:#111;border:1px solid #2a2a2a;border-radius:7px;padding:7px 12px;color:#ccc;font-size:13px;outline:none;cursor:pointer;" />
+        <button onclick="document.getElementById('overview-date').value=new Date().toISOString().slice(0,10);renderOverview(window._data)" style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:7px;padding:7px 12px;color:#666;font-size:12px;cursor:pointer;">Today</button>
+      </div>
       <div class="metrics" id="metrics"></div>
       <div class="grid-2">
         <div class="card">
@@ -49,6 +54,16 @@
         <div class="card">
           <div class="card-title">Tokens by user</div>
           <canvas id="chart-tokens" height="220"></canvas>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Requests by model</div>
+          <canvas id="chart-model-requests" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">Tokens out by model</div>
+          <canvas id="chart-model-tokens" height="220"></canvas>
         </div>
       </div>
       <div class="card">
@@ -64,7 +79,7 @@
         <table class="tbl" id="users-table">
           <thead>
             <tr>
-              <th>Name</th><th>Key</th><th>Role</th>
+              <th>Name</th><th>Key</th><th>Role</th><th>Default Model</th>
               <th>Requests</th><th>Tokens in</th><th>Tokens out</th><th>Last seen</th>
             </tr>
           </thead>
@@ -105,11 +120,26 @@
       <div class="card">
         <div class="card-title">Add user</div>
         <div class="add-row">
-          <input id="new-key" placeholder="API key (e.g. john123)" />
-          <input id="new-name" placeholder="Display name (e.g. John)" />
-          <button id="add-btn">Add</button>
+          <input id="new-name" placeholder="Name (e.g. John)" />
+          <select id="new-model" style="-webkit-appearance:none;appearance:none;background:#f5c518;border:1px solid #f5c518;border-radius:7px;padding:9px 14px;color:#000;font-size:13px;font-weight:700;outline:none;cursor:pointer;">
+            <option value="mlx-community/Kimi-K2.5">Kimi K2.5</option>
+            <option value="mlx-community/DeepSeek-V3.1-4bit">DeepSeek V3.1</option>
+            <option value="mlx-community/Qwen3.5-397B-A17B-8bit">Qwen3.5 397B</option>
+          </select>
+          <button id="add-btn">Generate Key</button>
         </div>
       </div>
+
+      <!-- Generated key box -->
+      <div id="generated-box" class="card" style="display:none;border-color:#f5c518">
+        <div class="card-title">Key generated for <span id="generated-key-name"></span></div>
+        <pre id="generated-snippet" class="code" style="margin-bottom:12px"></pre>
+        <div style="display:flex;gap:10px">
+          <button onclick="copyGenerated()" style="background:#f5c518;color:#000;border:none;border-radius:7px;padding:8px 16px;font-weight:700;cursor:pointer">Copy</button>
+          <button onclick="closeGenerated()" style="background:transparent;border:1px solid #333;color:#888;border-radius:7px;padding:8px 16px;cursor:pointer">Close</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">Active keys</div>
         <div id="keys-list"></div>
@@ -118,12 +148,16 @@
         <div class="card-title">How to use</div>
         <pre class="code">api_base = "http://YOUR_MAC_IP:8000/v1"
 api_key  = "your_key_here"
-model    = "mlx-community/Kimi-K2.5"</pre>
+
+# Pick a model:
+model = "mlx-community/Kimi-K2.5"
+model = "mlx-community/DeepSeek-V3.1-4bit"
+model = "mlx-community/Qwen3.5-397B-A17B-8bit"</pre>
       </div>
     </section>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/main.js?v=101"></script>
 </body>
 </html>

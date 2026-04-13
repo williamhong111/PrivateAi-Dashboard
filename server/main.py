@@ -29,7 +29,7 @@ app.include_router(export.router, prefix="/admin")
 async def root():
     return FileResponse("../frontend/index.html")
 
-app.mount("/", StaticFiles(directory="../frontend"), name="static")
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn

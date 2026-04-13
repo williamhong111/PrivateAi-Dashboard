@@ -39,17 +39,21 @@ async def proxy(path: str, request: Request):
     body = await request.body()
     tokens_in = _count_tokens_in(body) if body and key else 0
 
+    # Extract model from request body
+    model_used = ""
+    is_stream = False
+    if body:
+        try:
+            parsed = json.loads(body)
+            is_stream = parsed.get("stream", False)
+            model_used = parsed.get("model", "")
+        except Exception:
+            pass
+
     hdrs = {k: v for k, v in request.headers.items() if k.lower() != "host"}
     url = f"{EXO_BASE_URL}/v1/{path}"
     if request.query_params:
         url += f"?{request.query_params}"
-
-    is_stream = False
-    if body:
-        try:
-            is_stream = json.loads(body).get("stream", False)
-        except Exception:
-            pass
 
     async with httpx.AsyncClient(timeout=300) as client:
         if is_stream:
@@ -62,8 +66,9 @@ async def proxy(path: str, request: Request):
                         except Exception:
                             pass
                         yield chunk
-                if key:
-                    log_request(key, path, tokens_in, tokens_out)
+                # Only log actual chat/completion requests, not model listing
+                if key and path != "models":
+                    log_request(key, path, tokens_in, tokens_out, model_used)
 
             return StreamingResponse(generate(), media_type="text/event-stream")
 
@@ -74,8 +79,9 @@ async def proxy(path: str, request: Request):
                 tokens_out = resp.json().get("usage", {}).get("completion_tokens", 0)
             except Exception:
                 pass
-            if key:
-                log_request(key, path, tokens_in, tokens_out)
+            # Only log actual chat/completion requests, not model listing
+            if key and path != "models":
+                log_request(key, path, tokens_in, tokens_out, model_used)
             return Response(
                 content=resp.content,
                 status_code=resp.status_code,

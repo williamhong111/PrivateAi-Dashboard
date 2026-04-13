@@ -45,6 +45,11 @@ async function fetchModelStats() {
     const data = await res.json();
     window._modelStats = data;
     renderModelStats(data);
+    // Also re-render overview model charts if we're on overview
+    const active = document.querySelector('.nav-item.active');
+    if ((active?.dataset.tab || 'overview') === 'overview' && window._data) {
+      renderModelCharts(data);
+    }
   } catch(e) {
     console.warn('Could not fetch model stats', e);
   }
@@ -121,17 +126,15 @@ function renderOverview(data) {
     });
   });
 
-  // Count unique models used on selected date
-  const modelsOnDay = new Set();
-  keys.forEach(k => (users[k].history || []).filter(onDate).forEach(h => {
-    modelsOnDay.add(modelShortName(h.model || users[k].model || ''));
-  }));
+  // All-time totals for comparison
+  const allRequests = data.total_requests;
+  const allTokens   = data.total_tokens_out;
 
   document.getElementById('metrics').innerHTML = `
-    <div class="metric"><div class="metric-val">${dayRequests.toLocaleString()}</div><div class="metric-lbl">Total Requests</div></div>
-    <div class="metric"><div class="metric-val">${dayTokens.toLocaleString()}</div><div class="metric-lbl">Tokens Generated</div></div>
-    <div class="metric"><div class="metric-val">${activeOnDay.size}</div><div class="metric-lbl">Active Users</div></div>
-    <div class="metric"><div class="metric-val">${modelsOnDay.size || 0}</div><div class="metric-lbl">Models Used</div></div>
+    <div class="metric"><div class="metric-val">${dayRequests.toLocaleString()}</div><div class="metric-lbl">Requests on day</div></div>
+    <div class="metric"><div class="metric-val">${dayTokens.toLocaleString()}</div><div class="metric-lbl">Tokens on day</div></div>
+    <div class="metric"><div class="metric-val">${activeOnDay.size}</div><div class="metric-lbl">Active users</div></div>
+    <div class="metric"><div class="metric-val">${allRequests.toLocaleString()}</div><div class="metric-lbl">All-time requests</div></div>
   `;
 
   // Requests & tokens by user — filtered to selected date
@@ -180,10 +183,14 @@ function renderOverview(data) {
     });
   });
   const entries = Object.entries(modelMap);
-  const labels   = entries.length ? entries.map(([n]) => n) : ['No data'];
-  const bgColors = labels.map((l, i) => modelColor(l, i));
-  mkChart('chart-model-requests', 'doughnut', labels, [{ data: entries.length ? entries.map(([,v]) => v.requests) : [1], backgroundColor: bgColors, borderWidth: 0 }]);
-  mkChart('chart-model-tokens', 'bar', labels, [{ label: 'Tokens out', data: entries.length ? entries.map(([,v]) => v.tokens_out) : [0], backgroundColor: bgColors }]);
+  if (entries.length) {
+    const labels   = entries.map(([n]) => n);
+    const bgColors = labels.map((l, i) => modelColor(l, i));
+    mkChart('chart-model-requests', 'doughnut', labels, [{ data: entries.map(([,v]) => v.requests), backgroundColor: bgColors, borderWidth: 0 }]);
+    mkChart('chart-model-tokens', 'bar', labels, [{ label: 'Tokens out', data: entries.map(([,v]) => v.tokens_out), backgroundColor: bgColors }]);
+  } else if (window._modelStats) {
+    renderModelCharts(window._modelStats);
+  }
 }
 
 function renderModelCharts(modelStats) {
