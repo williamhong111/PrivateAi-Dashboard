@@ -1,8 +1,8 @@
-# EXO Dashboard
+# PrivateAI Dashboard
 
 > A self-hosted usage tracking dashboard for your local EXO AI cluster.
 
-![EXO Dashboard](doc/dashboard.png)
+![PrivateAI Dashboard](doc/dashboard.png)
 
 If you're running [EXO](https://github.com/exo-explore/exo) on Apple Silicon and sharing access with others, you have no visibility into who's calling your models or how much they're using. This fixes that.
 
